@@ -3,51 +3,51 @@ pub struct Parser {
     pos: u64,
 }
 
-pub enum JsonValue {
+pub enum JSONValue {
     JString(String),
     Number(i64),
-    Object(Vec<JsonObject>),
-    Array(Vec<JsonValue>),
+    Object(Vec<JSONObject>),
+    Array(Vec<JSONValue>),
     Bool(bool),
     Null,
 }
 
-pub struct JsonObject {
+pub struct JSONObject {
     pub key: String,
-    pub value: JsonValue,
+    pub value: JSONValue,
 }
 
-pub struct Json {
-    pub value: Vec<JsonObject>,
+pub struct JSON {
+    pub value: Vec<JSONObject>,
 }
 
 pub fn draft() {
     //{“taro”: 12,“jiro”: {“saburo”: “shiro”},“goro”: true}
-    let _first = Json {
+    let _first = JSON {
         value: vec![
-            JsonObject {
+            JSONObject {
                 key: "taro".to_string(),
-                value: JsonValue::Number(12),
+                value: JSONValue::Number(12),
             },
-            JsonObject {
+            JSONObject {
                 key: "jiro".to_string(),
-                value: JsonValue::Object(vec![JsonObject {
+                value: JSONValue::Object(vec![JSONObject {
                     key: "saburo".to_string(),
-                    value: JsonValue::JString("shiro".to_string()),
+                    value: JSONValue::JString("shiro".to_string()),
                 }]),
             },
-            JsonObject {
+            JSONObject {
                 key: "goro".to_string(),
-                value: JsonValue::Bool(true),
+                value: JSONValue::Bool(true),
             },
         ],
     };
 
     //{“taro”: []}
-    let _second = Json {
-        value: vec![JsonObject {
+    let _second = JSON {
+        value: vec![JSONObject {
             key: "taro".to_string(),
-            value: JsonValue::Array(vec![]),
+            value: JSONValue::Array(vec![]),
         }],
     };
 }
