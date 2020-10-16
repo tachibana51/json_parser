@@ -43,10 +43,6 @@ impl Parser {
         self.input[idx..].chars().next().unwrap()
     }
 
-    fn next_token(&mut self) -> Option<JSONToken> {
-        unimplemented!()
-    }
-
     //TODO: Error Handling
     fn parse_string(&mut self) -> JSONValue {
         let mut parsed_string = String::new();
