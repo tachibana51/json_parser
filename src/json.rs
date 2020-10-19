@@ -96,11 +96,17 @@ impl Parser {
         let mut count = 0;
         while self.pos + count < self.input.chars().count() {
             let c = match self.char_at(self.pos + count) {
-                '+' | '-' => {
+                '-' => {
                     count += 1;
+                    if count != 1 {
+                        break;
+                    }
                     continue;
                 }
-                other => other,
+                '0'..='9' => self.char_at(self.pos + count),
+                _ => {
+                    break;
+                }
             };
             parsed_string.push(c);
             count += 1;
@@ -110,9 +116,10 @@ impl Parser {
         JSONValue::Number(parsed_string.parse::<i64>().unwrap())
     }
 
-    fn parse_bool() -> JSONValue {
-        unimplemented!()
-    }
+    fn is_bool(&mut self) -> bool {
+        let mut count = 0;
+        if self.input[self.pos..]
+    } 
 
     fn parse_value() -> JSONValue {
         unimplemented!()
@@ -168,5 +175,5 @@ pub fn draft() {
         }],
     };
     //let mut p = new_parser(r#"{"taro": 12,"jiro": {"saburo": "shiro"},"goro": true}"#.to_owned());
-    let mut p = new_parser(r#"{"taro": 12,"jiro": {"saburo": "shiro"},"goro": true}"#.to_owned());
+    let mut p = new_parser(r#"12,"jiro": {"saburo": "shiro"},"goro": true}"#.to_owned());
 }
