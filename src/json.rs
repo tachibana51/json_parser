@@ -3,6 +3,7 @@ pub struct Parser {
     pos: usize,
 }
 
+#[derive(Debug)]
 pub enum JSONValue {
     JString(String),
     Number(i64),
@@ -14,11 +15,13 @@ pub enum JSONValue {
 
 enum JSONToken {}
 
+#[derive(Debug)]
 pub struct JSONObject {
     pub key: String,
     pub value: JSONValue,
 }
 
+#[derive(Debug)]
 pub struct JSON {
     pub value: Vec<JSONObject>,
 }
@@ -41,6 +44,30 @@ impl Parser {
 
     fn char_at(&self, idx: usize) -> char {
         self.input[idx..].chars().next().unwrap()
+    }
+
+    fn prefetch_string(&self, length: usize) -> &str {
+        &self.input[self.pos..length]
+    }
+
+    fn get_keyword(&mut self) -> JSONValue {
+        match self.prefetch_string(4) {
+            "null" => {
+                self.pos += 4;
+                JSONValue::Null
+            }
+            "true" => {
+                self.pos += 4;
+                JSONValue::Bool(true)
+            }
+            _ => match self.prefetch_string(5) {
+                "false" => {
+                    self.pos += 5;
+                    JSONValue::Bool(false)
+                }
+                _ => panic!("unexpected keyword"),
+            },
+        }
     }
 
     //TODO: Error Handling
@@ -96,12 +123,11 @@ impl Parser {
         let mut count = 0;
         while self.pos + count < self.input.chars().count() {
             let c = match self.char_at(self.pos + count) {
-                '-' => {
-                    count += 1;
-                    if count != 1 {
+                '+' | '-' => {
+                    if count != 0 {
                         break;
                     }
-                    continue;
+                    self.char_at(self.pos + count)
                 }
                 '0'..='9' => self.char_at(self.pos + count),
                 _ => {
@@ -116,20 +142,40 @@ impl Parser {
         JSONValue::Number(parsed_string.parse::<i64>().unwrap())
     }
 
-    fn is_bool(&mut self) -> bool {
-        let mut count = 0;
-        if self.input[self.pos..]
-    } 
-
-    fn parse_value() -> JSONValue {
-        unimplemented!()
+    fn parse_value(&mut self) -> JSONValue {
+        match self.char_at(self.pos) {
+            '"' => self.parse_string(),
+            '+' | '-' | '0'..='9' => self.parse_number(),
+            _ => self.get_keyword(),
+        }
     }
 
-    fn parse_array() -> JSONValue {
-        unimplemented!()
+    fn parse_array(&mut self) -> JSONValue {
+        let mut parsed_array: Vec<JSONValue> = Vec::new();
+        loop {
+            let v = match self.char_at(self.pos) {
+                ']' => {
+                    break;
+                }
+                ',' => {
+                    self.pos += 1;
+                    continue;
+                }
+                other => {
+                    if is_white_space(self.char_at(self.pos)){
+                        self.pos += 1;
+                        continue;
+                    }
+                    self.parse_value()
+                },
+            };
+            parsed_array.push(v);
+        }
+        self.pos += 1;
+        JSONValue::Array(parsed_array)
     }
 
-    fn parse_object() -> JSONValue {
+    fn parse_object(&mut self) -> JSONObject {
         unimplemented!()
     }
 }
@@ -176,4 +222,5 @@ pub fn draft() {
     };
     //let mut p = new_parser(r#"{"taro": 12,"jiro": {"saburo": "shiro"},"goro": true}"#.to_owned());
     let mut p = new_parser(r#"12,"jiro": {"saburo": "shiro"},"goro": true}"#.to_owned());
+    println!("{:#?}", p.parse_number());
 }
